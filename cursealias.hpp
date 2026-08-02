@@ -1,7 +1,9 @@
 #include "unocards.hpp"
 
 namespace {
-    std::vector<WINDOW*> windowList;
+    static std::vector<WINDOW*> windowList;
+    static asio::io_context io;
+    static asio::steady_timer blink_timer(io);
 }
 
 void Sblink(WINDOW *window, int yPos, int xPos, std::string string) { // an alias for blinking text :3

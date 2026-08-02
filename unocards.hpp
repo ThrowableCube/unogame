@@ -9,9 +9,6 @@
 #include <algorithm>
 #include <random>
 
-static asio::io_context io;
-static asio::steady_timer blink_timer(io);
-
 class uno {
     public:
         enum class colors {
@@ -47,8 +44,8 @@ void transferVectorCard(std::vector<uno::card>& from, int index, std::vector<uno
     try {
         to.push_back(from.at(index));
         from.erase(from.begin() + index);
-    } catch (...) {
-        mvprintw(0,0,"transferVectorCard: Exception Caught, please restart the game.");
+    } catch (const std::exception& e) {
+        mvprintw(0,0,e.what());
         refresh();
     }
 }
