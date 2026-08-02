@@ -6,21 +6,21 @@ namespace {
     static asio::steady_timer blink_timer(io);
 }
 
-void Sblink(WINDOW *window, int yPos, int xPos, std::string string) { // an alias for blinking text :3
-    wattron(window, A_REVERSE);
-    mvwprintw(window, yPos, xPos, string.c_str());
-    refresh();
-    wrefresh(window);
+void Sblink(WINDOW *window, int yPos, int xPos, std::string string, int repeats, int delay) { // an alias for blinking text :3
+    for (int i = 1 ; i < repeats ; i++) {
+        wattron(window, A_REVERSE);
+        mvwprintw(window, yPos, xPos, string.c_str());
+        refresh();
+        wrefresh(window);
 
-    blink_timer.expires_after(std::chrono::milliseconds(250));
+        napms(delay);
 
-    blink_timer.async_wait([window, yPos, xPos, string](const asio::error_code& ec) {
-        if (!ec) {
-            wattroff(window, A_REVERSE);
-            mvwprintw(window, yPos, xPos, string.c_str());
-            wrefresh(window);
-        }
-    });
+        wattroff(window, A_REVERSE);
+        mvwprintw(window, yPos, xPos, string.c_str());
+        refresh();
+
+        napms(delay);
+    }
 }
 
 void winTitle(WINDOW *window, const char* string) { // an alias for printing titles

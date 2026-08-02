@@ -50,7 +50,7 @@ void transferVectorCard(std::vector<uno::card>& from, int index, std::vector<uno
     }
 }
 
-std::string printCardFN(uno::card card) {
+std::string printFNCard(uno::card card) {
     std::string rs;
     std::vector<std::string> letterColor = {"Red ", "Blue ", "Green ", "Yellow "};
     if (card.type == uno::types::none) {

@@ -63,20 +63,22 @@ int main() {
     int currentPlayer = 0;
     int threshold = 50;
     int tmpVal = 0; // This does not mean the value is temporary,
+    int y;
+    int x;
+    getmaxyx(stdscr, y ,x);
     bool notOOB = 0;
     bool alreadyDidIt = 0;
     bool notClose = 1;
     // fuck you C89
 
-    for (int i = 0 ; i < 5 ; i++) {
+    for (int i = 0 ; i < 15 ; i++) {
         players.at(currentPlayer).hand.push_back(deck.front());
         deck.erase(deck.begin());
     }
 
     while (1) {
         if (deck.at(tmpVal).type == uno::types::none && deck.at(tmpVal).color != uno::colors::wild) {
-            pile.push_back(deck.at(tmpVal));
-            deck.erase(deck.begin());
+            transferVectorCard(deck, tmpVal, pile);
             break;
         } else {
             tmpVal++;
@@ -125,7 +127,7 @@ int main() {
     while (notClose) {
         io.poll();
         mvwprintw(playerWindow, 12, 1, "                                ");
-        mvwprintw(playerWindow, 12, 1, printCardFN(players.at(currentPlayer).hand.at(selection + displayOffset)).c_str());
+        mvwprintw(playerWindow, 12, 1, printFNCard(players.at(currentPlayer).hand.at(selection + displayOffset)).c_str());
         for (int i = 0 ; i < 10 ; i++) {
             if ((i + displayOffset) >= players.at(currentPlayer).hand.size()) {
                 mvwprintw(cardWindow, (11 - i), 1, "  ");
@@ -133,16 +135,20 @@ int main() {
                 if (i == selection) {
                     wattron(cardWindow, A_REVERSE);
                 }
-                wattron(cardWindow, COLOR_PAIR(getCardColorAsANSI(players.at(currentPlayer).hand.at(i + displayOffset))));
+                wattron(cardWindow, COLOR_PAIR(getCardColorAsANSI(players.at(currentPlayer).hand.at(i + displayOffset))) | A_BOLD);
                 mvwprintw(cardWindow, (11 - i), 1, printTLCard(players.at(currentPlayer).hand.at((i + displayOffset))).c_str());
-                wattroff(cardWindow, COLOR_PAIR(getCardColorAsANSI(players.at(currentPlayer).hand.at(i + displayOffset))));
+                wattroff(cardWindow, COLOR_PAIR(getCardColorAsANSI(players.at(currentPlayer).hand.at(i + displayOffset)) | A_BOLD));
                 wattroff(cardWindow, A_REVERSE);
             }
         }
 
-        wattron(pileWindow, COLOR_PAIR(getCardColorAsANSI(pile.at(pile.size() - 1))));
+        wattron(pileWindow, COLOR_PAIR(getCardColorAsANSI(pile.at(pile.size() - 1))) | A_BOLD);
         mvwprintw(pileWindow, 1, 1, printTLCard(pile.at(pile.size() - 1)).c_str());
-        wattroff(pileWindow, COLOR_PAIR(getCardColorAsANSI(pile.at(pile.size() - 1))));
+        wattroff(pileWindow, COLOR_PAIR(getCardColorAsANSI(pile.at(pile.size() - 1))) | A_BOLD);
+
+        mvwprintw(pileWindow, 2, 1, "%d", static_cast<int>(pile.size()));
+        mvwprintw(pileWindow, 2, 5, "/");
+        mvwprintw(pileWindow, 2, 7, "%d", threshold);
 
         refreshAll();
 
@@ -154,6 +160,7 @@ int main() {
         mvwprintw(cardWindow, 12, 1, "PageDown");
         mvwprintw(cardWindow, 1, 1, "PageUp");
 
+        // THIS BLOCK IS NOTHING, YOU SERVE ZERO PURPOSE, YOU SHOULD DELETE THIS CODE. NOW.
         wattron(playerWindow, COLOR_PAIR(getCardColorAsANSI(lastCard)));
         wattroff(playerWindow, COLOR_PAIR(getCardColorAsANSI(lastCard)));
 
