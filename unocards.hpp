@@ -1,22 +1,16 @@
+#pragma once
 #include <cstdlib>
 #include <ctime>
 #include <vector>
-#include "include/curses.h"
-#include "include/asio.hpp"
+#include <curses.h>
+#include <asio.hpp>
 #include <stdio.h>
 #include <iostream>
 #include <algorithm>
 #include <random>
-#pragma once
 
-asio::io_context io;
-
-// class asioAlias {
-//     public:
-//         void wait_async(int seconds) {
-//             asio::steady_timer t(io, asio::chrono::seconds(seconds));
-//         }
-// };
+static asio::io_context io;
+static asio::steady_timer blink_timer(io);
 
 class uno {
     public:
@@ -48,6 +42,16 @@ class uno {
             std::vector<card> hand;
         };
 };
+
+void transferVectorCard(std::vector<uno::card>& from, int index, std::vector<uno::card>& to) { // hi
+    try {
+        to.push_back(from.at(index));
+        from.erase(from.begin() + index);
+    } catch (...) {
+        mvprintw(0,0,"transferVectorCard: Exception Caught, please restart the game.");
+        refresh();
+    }
+}
 
 std::string printCardFN(uno::card card) {
     std::string rs;

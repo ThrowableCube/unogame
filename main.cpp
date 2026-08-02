@@ -4,8 +4,10 @@
 int main() {
     // here come the tornado of shit code
 
-    // no i have to sleep
+    // no i have to sleep // my mom told me to sleep here ok
     // ... this is awkward i updated the wrong file and i got confused on why my code changes arent working.
+
+    // i wonder how much of these comments can be taken out of context
     
     int ch = 0;
     srand(time(0));
@@ -60,10 +62,26 @@ int main() {
     int result = 0;
     int currentPlayer = 0;
     int threshold = 50;
+    int tmpVal = 0; // This does not mean the value is temporary,
     bool notOOB = 0;
     bool alreadyDidIt = 0;
     bool notClose = 1;
-    // im glad modern compilers removed the need for initialized values having to go on top of int main, makes it way easier to write C++
+    // fuck you C89
+
+    for (int i = 0 ; i < 5 ; i++) {
+        players.at(currentPlayer).hand.push_back(deck.front());
+        deck.erase(deck.begin());
+    }
+
+    while (1) {
+        if (deck.at(tmpVal).type == uno::types::none && deck.at(tmpVal).color != uno::colors::wild) {
+            pile.push_back(deck.at(tmpVal));
+            deck.erase(deck.begin());
+            break;
+        } else {
+            tmpVal++;
+        }
+    }
 
     // start of pdcurses
     // OUUU SHI VS CODE RECOGNIZES IT
@@ -86,6 +104,7 @@ int main() {
     init_pair(3, COLOR_GREEN, -1);
     init_pair(4, COLOR_YELLOW, -1);
     init_pair(5, COLOR_MAGENTA, -1);
+    // staircase :face_holding_back_tears:
 
     WINDOW* cardWindow = newwin(14,14,1,1);
 
@@ -93,35 +112,40 @@ int main() {
 
     WINDOW* playerWindow = newwin(14,34,1,16);
 
+    addRefreshList(cardWindow);
+    addRefreshList(pileWindow);
+    addRefreshList(playerWindow);
+
     //////////////////////////////////////////////////////////////////////////
 
     winTitle(playerWindow, " Player ");
-
     winTitle(cardWindow, " Hand ");
-
     winTitle(pileWindow, " Discard Pile ");
 
     while (notClose) {
-        refresh();
+        io.poll();
         mvwprintw(playerWindow, 12, 1, "                                ");
-        mvwprintw(playerWindow, 12, 1, printCardFN(deck.at(selection + displayOffset)).c_str());
+        mvwprintw(playerWindow, 12, 1, printCardFN(players.at(currentPlayer).hand.at(selection + displayOffset)).c_str());
         for (int i = 0 ; i < 10 ; i++) {
-            if ((i + displayOffset) >= deck.size()) {
+            if ((i + displayOffset) >= players.at(currentPlayer).hand.size()) {
                 mvwprintw(cardWindow, (11 - i), 1, "  ");
             } else {
                 if (i == selection) {
                     wattron(cardWindow, A_REVERSE);
                 }
-                wattron(cardWindow, COLOR_PAIR(getCardColorAsANSI(deck.at(i + displayOffset))));
-                mvwprintw(cardWindow, (11 - i), 1, printTLCard(deck.at((i + displayOffset))).c_str());
-                wattroff(cardWindow, COLOR_PAIR(getCardColorAsANSI(deck.at(i + displayOffset))));
+                wattron(cardWindow, COLOR_PAIR(getCardColorAsANSI(players.at(currentPlayer).hand.at(i + displayOffset))));
+                mvwprintw(cardWindow, (11 - i), 1, printTLCard(players.at(currentPlayer).hand.at((i + displayOffset))).c_str());
+                wattroff(cardWindow, COLOR_PAIR(getCardColorAsANSI(players.at(currentPlayer).hand.at(i + displayOffset))));
                 wattroff(cardWindow, A_REVERSE);
             }
         }
 
-        wrefresh(playerWindow);
-        wrefresh(cardWindow);
-        wrefresh(pileWindow);
+        wattron(pileWindow, COLOR_PAIR(getCardColorAsANSI(pile.at(pile.size() - 1))));
+        mvwprintw(pileWindow, 1, 1, printTLCard(pile.at(pile.size() - 1)).c_str());
+        wattroff(pileWindow, COLOR_PAIR(getCardColorAsANSI(pile.at(pile.size() - 1))));
+
+        refreshAll();
+
         mvwprintw(playerWindow, 1, 1, "                      ");
 	    mvwprintw(playerWindow, 2, 1, "                      ");
         mvwprintw(playerWindow, 1, 1, "Player %d", currentPlayer + 1);
@@ -135,16 +159,6 @@ int main() {
 
         ch = getch();
         switch (ch) {
-            case KEY_NPAGE: // ok sahai punyaon
-                displayOffset -= 5;
-                Sblink(cardWindow, 12, 1, "PageDown");
-                break;
-            case KEY_PPAGE:
-                if (displayOffset < deck.size()) {
-                    displayOffset += 5;
-                    Sblink(cardWindow, 1, 1, "PageUp");
-                }
-                break;
             case KEY_DOWN:
                 selection--;
                 break;
@@ -152,12 +166,13 @@ int main() {
                 selection++;
                 break;
             case '\n':
-                result = discardCard(deck.at(selection + displayOffset), lastCard, 1);
+                result = discardCard(players.at(currentPlayer).hand.at(selection + displayOffset), lastCard, 1);
                 if (result) {
                     mvwprintw(playerWindow, 11, 1, "                                ");
                     mvwprintw(playerWindow, 11, 1, "Discard Result: %d", result);
-                    pile.push_back(deck.at(selection + displayOffset));
-                    deck.erase(deck.begin() + selection + displayOffset);
+                    transferVectorCard(players.at(currentPlayer).hand, selection + displayOffset, pile);
+                    // pile.push_back(players.at(currentPlayer).hand.at(selection + displayOffset));
+                    // players.at(currentPlayer).hand.erase(players.at(currentPlayer).hand.begin() + selection + displayOffset);
                 } else { 
                     mvwprintw(playerWindow, 11, 1, "You cannot play this card.");
                 }
@@ -169,14 +184,14 @@ int main() {
         } else if (selection < 0) {
             selection = 0;
             displayOffset--;
-        } else if (selection > deck.size() - 1) {
-            selection = deck.size() - 1;
+        } else if (selection > players.at(currentPlayer).hand.size() - 1) {
+            selection = players.at(currentPlayer).hand.size() - 1;
         }
 
         if (displayOffset < 0) {
             displayOffset = 0;
-        } else if (displayOffset > deck.size() - 10) {
-            displayOffset = deck.size() - 10;
+        } else if (displayOffset > players.at(currentPlayer).hand.size() - 10) {
+            displayOffset = players.at(currentPlayer).hand.size() - 10;
         }
     }
 
