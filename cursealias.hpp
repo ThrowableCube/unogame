@@ -18,6 +18,7 @@ void Sblink(WINDOW *window, int yPos, int xPos, std::string string, int repeats,
         wattroff(window, A_REVERSE);
         mvwprintw(window, yPos, xPos, string.c_str());
         refresh();
+		wrefresh(window);
 
         napms(delay);
     }

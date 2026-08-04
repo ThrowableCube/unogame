@@ -65,6 +65,7 @@ int main() {
     int tmpVal = 0; // This does not mean the value is temporary,
     int y;
     int x;
+	int playersC = 1;
     getmaxyx(stdscr, y ,x);
     bool notOOB = 0;
     bool alreadyDidIt = 0;
@@ -123,24 +124,38 @@ int main() {
 
 	// Player setup
     while (notClose) {
-        mvwprintw(playerSetupWindow,1,1,"W.I.P, Press enter to close.");
+        mvwprintw(playerSetupWindow,1,1,"How many people will be playing?");
+		mvwprintw(playerSetupWindow,2,1,"Players:                        ", playersC);
+		mvwprintw(playerSetupWindow,2,1,"Players: %d", playersC);
 		refresh();
 		wrefresh(playerSetupWindow);
         ch = getch();
         switch (ch) {
             case KEY_DOWN:
-                // selection--;
+                playersC--;
+				mvwprintw(playerSetupWindow,17,1,"                                  ");
+				wrefresh(playerSetupWindow);
                 break;
             case KEY_UP:
-                // selection++;
+                playersC++;
+				mvwprintw(playerSetupWindow,17,1,"                                  ");
+				wrefresh(playerSetupWindow);
                 break;
             case '\n':
                 notClose = 0;
                 break;
         }
+		if (playersC < 1) {
+			playersC = 1;
+			Sblink(playerSetupWindow, 17, 1, "Player count must NOT be negative.", 5, 50);
+		} else if (playersC > 8) {
+			mvwprintw(playerSetupWindow,17,1,"Recommended player count is 2 to 8");
+			wrefresh(playerSetupWindow);
+		}
 	}
 
-	notClose = 1
+	notClose = 1;
+	bkgd(0);
 
     //////////////////////////////////////////////////////////////////////////
 
