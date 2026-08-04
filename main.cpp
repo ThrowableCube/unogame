@@ -114,9 +114,33 @@ int main() {
 
     WINDOW* playerWindow = newwin(14,34,1,16);
 
+	WINDOW* playerSetupWindow = newwin(19,49,1,1);
+    winTitle(playerSetupWindow, " Player Setup ");
+
     addRefreshList(cardWindow);
     addRefreshList(pileWindow);
     addRefreshList(playerWindow);
+
+	// Player setup
+    while (notClose) {
+        mvwprintw(playerSetupWindow,1,1,"W.I.P, Press enter to close.");
+		refresh();
+		wrefresh(playerSetupWindow);
+        ch = getch();
+        switch (ch) {
+            case KEY_DOWN:
+                // selection--;
+                break;
+            case KEY_UP:
+                // selection++;
+                break;
+            case '\n':
+                notClose = 0;
+                break;
+        }
+	}
+
+	notClose = 1
 
     //////////////////////////////////////////////////////////////////////////
 
