@@ -37,6 +37,7 @@ class uno {
             std::string name;
             bool skipped;
             std::vector<card> hand;
+            bool hasWon = 0;
         };
 };
 
