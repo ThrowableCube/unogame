@@ -21,7 +21,7 @@ int main() {
     std::vector<uno::card> deck = {};
     std::vector<uno::card> pile = {};
 
-    players.push_back({"noName", 0, {}}); // what the fuck?
+    
 
     // somebodys gonna get confused by this so...
     for (int x = 0 ; x < 4 ; x++) { // this cycles color
@@ -72,19 +72,7 @@ int main() {
     bool notClose = 1;
     // fuck you C89
 
-    for (int i = 0 ; i < 15 ; i++) {
-        players.at(currentPlayer).hand.push_back(deck.front());
-        deck.erase(deck.begin());
-    }
-
-    while (1) {
-        if (deck.at(tmpVal).type == uno::types::none && deck.at(tmpVal).color != uno::colors::wild) {
-            transferVectorCard(deck, tmpVal, pile);
-            break;
-        } else {
-            tmpVal++;
-        }
-    }
+    
 
     // start of pdcurses
     // OUUU SHI VS CODE RECOGNIZES IT
@@ -156,8 +144,71 @@ int main() {
 
 	notClose = 1;
 	bkgd(0);
+    refresh();
+    winTitle(playerSetupWindow, " Player Setup ");
+
+    for (int i = 1 ; i <= playersC ; i++) {
+        players.push_back({"noName", 0, {}}); // what the fuck?
+    }
+
+    // After defining how much players will be playing.
+    // L Code haha
+    while (notClose) {
+        mvwprintw(playerSetupWindow,1,1,"Player %d, what is your name?", currentPlayer + 1);
+		mvwprintw(playerSetupWindow,2,1,"Name:                        ");
+		mvwprintw(playerSetupWindow,2,1,"Name: %s", players.at(currentPlayer).name.c_str());
+		refresh();
+		wrefresh(playerSetupWindow);
+        ch = getch();
+        switch (ch) {
+            case KEY_DOWN:
+                if (currentPlayer - 1 < 1) {
+                    currentPlayer--;
+                }
+				mvwprintw(playerSetupWindow,17,1,"                                  ");
+				wrefresh(playerSetupWindow);
+                break;
+            case KEY_UP:
+                currentPlayer++;
+				mvwprintw(playerSetupWindow,17,1,"                                  ");
+				wrefresh(playerSetupWindow);
+                break;
+            case '\n':
+                if (currentPlayer < playersC) {
+                    notClose = 0;
+                } else {
+                    currentPlayer++;
+                }
+                break;
+        }
+        if (currentPlayer < 0) {
+            currentPlayer = 0;
+        } else if (currentPlayer >= playersC) {
+            currentPlayer = playersC - 1;
+        }
+	}
+    // THIS THING IS BY FAR THE MOST BUGGY BLOCK OF CODE EVER, I AM GOING INSANE FROM THIS.
+    // I NEED CONTRIBUTERS.
+    // HELP
+
+    // GOING TO MAX PLAYER MAKES YOU UNABLE TO GO BELOW.
+    //sopadifhpoadgh[ahgpa0irhtp049HGAPWERINGSAOP5IYHSPIFGHASO45TJAPIFHBSPOFKNH[STOHJPDGIHE[46PYOUJSD[0GHJS[TEKLHM[DPOGUD[P56 [POGJND[PTHM]-G0UNS[DPOT6MU[PSJHS[P5OYJS[PTOJH[SPTMHPSDFNHSODPKINHPSIORTHSPOIHTS9FHS908HA09H8A895R7598575897587585785785758758]]]]]]]]]]]]]
 
     //////////////////////////////////////////////////////////////////////////
+
+    for (int i = 0 ; i < 15 ; i++) {
+        players.at(currentPlayer).hand.push_back(deck.front());
+        deck.erase(deck.begin());
+    }
+
+    while (1) {
+        if (deck.at(tmpVal).type == uno::types::none && deck.at(tmpVal).color != uno::colors::wild) {
+            transferVectorCard(deck, tmpVal, pile);
+            break;
+        } else {
+            tmpVal++;
+        }
+    }
 
     winTitle(playerWindow, " Player ");
     winTitle(cardWindow, " Hand ");

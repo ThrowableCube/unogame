@@ -41,3 +41,9 @@ void refreshAll() {
         wrefresh(windowList.at(flflfr));
     }
 }
+
+void removeRefreshList() {
+    while (windowList.size()) {
+        windowList.erase(windowList.begin());
+    }
+}
